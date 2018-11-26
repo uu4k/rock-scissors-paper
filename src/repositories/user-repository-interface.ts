@@ -1,9 +1,9 @@
 import User from '@/models/user/user'
 
 interface UserRepositoryInterface {
-  login(): User
-  logout(): void
-  loggedin(): Boolean
+  login(): Promise<User>
+  logout(): Promise<void>
+  loggedin(): boolean
 }
 
 export default UserRepositoryInterface

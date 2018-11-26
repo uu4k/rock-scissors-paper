@@ -3,15 +3,15 @@ import UserRepositoryInterface from '@/repositories/user-repository-interface'
 class AuthService {
   constructor(private userRepository: UserRepositoryInterface) {}
 
-  login() {
+  public login() {
     return this.userRepository.login()
   }
 
-  logout() {
+  public logout() {
     this.userRepository.logout()
   }
 
-  loggedin() {
+  public loggedin() {
     return this.userRepository.loggedin()
   }
 }
