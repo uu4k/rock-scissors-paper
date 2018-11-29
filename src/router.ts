@@ -27,6 +27,7 @@ export default new Router({
       path: '/room/:roomId',
       name: 'room',
       component: Room
+      // TODO roomが未作成の場合はトップに戻す
     }
   ]
 })

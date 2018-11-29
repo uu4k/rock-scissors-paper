@@ -4,6 +4,7 @@ interface UserRepositoryInterface {
   login(): Promise<User>
   logout(): Promise<void>
   loggedin(): boolean
+  getUser(): User | undefined
 }
 
 export default UserRepositoryInterface
