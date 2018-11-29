@@ -3,6 +3,14 @@
     <h1>room: {{ $route.params.roomId }}</h1>
     <div class="loading" v-if="loading">読み込み中...</div>
     <div class="error" v-if="error">{{ error }}</div>
+    <div class="name" v-if="user && user.name != undefined">
+      {{user.name}}
+    </div>
+    <div class="input_name" v-if="user && !user.name">
+      <input type="text" v-model="input_username"
+      @keyup.enter="handleInputName"
+      placeholder="なまえをにゅうりょくしてください">
+    </div>
   </div>
 </template>
 
@@ -14,26 +22,65 @@ import UserRepository from '@/repositories/firebase/user-repository'
 import User from '@/models/user/user'
 import Uid from '@/models/user/uid'
 import Name from '@/models/user/name'
+import firebase from 'firebase/app'
+import 'firebase/firestore'
 
 Component.registerHooks(['beforeRouteEnter'])
 
 @Component({})
 export default class Room extends Vue {
-  public user: User | null = null
+  public user: User | null = null // TODO ログイン状態の管理方法検討
   public loading: boolean = true
   public error: string = ''
+  public input_username: string = ''
 
   public async beforeRouteEnter(to: VueRouter, from: VueRouter, next: any) {
     // TODO DI
-    const authService = new AuthService(new UserRepository())
-    const user = await authService.getLoggedinUserOrLoginUser()
-    console.log('beforeRouteEnter')
-    console.log(user)
+    const db = firebase.firestore()
+    const authService = new AuthService(new UserRepository(db))
+
+    const user = await authService.login()
+
     next((component: any) => {
-      console.log(user)
       component.user = user
-      component.error = 'aaa'
     })
+  }
+
+  public created() {
+    // TODO リポジトリに出したい
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        console.log('onAuthStateChanged')
+        // TODO DI
+        const db = firebase.firestore()
+        const authService = new AuthService(new UserRepository(db))
+
+        authService.getUser(user.uid).then(user => {
+          this.user = user
+        })
+      } else {
+        this.user = null
+      }
+    })
+  }
+
+  public handleInputName(): void {
+    console.log('handleInputName')
+    // TODO DI
+    const db = firebase.firestore()
+    const authService = new AuthService(new UserRepository(db))
+    if (this.user) {
+      authService
+        .updateUserName(this.user.uid, this.input_username)
+        .then(user => {
+          this.user = user
+        })
+        .catch(() => {
+          this.error = 'ユーザ情報の更新に失敗しました'
+        })
+    } else {
+      this.error = 'ユーザ情報が存在しません'
+    }
   }
 }
 </script>
