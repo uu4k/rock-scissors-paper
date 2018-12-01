@@ -1,12 +1,13 @@
-import User from '@/models/user/user'
-import Name from '@/models/user/name'
-import Uid from '@/models/user/uid'
+import User from '@/models/room/user/user'
+import Name from '@/models/room/user/name'
+import Uid from '@/models/room/user/uid'
+import RoomId from '@/models/room/id'
 
 interface UserRepositoryInterface {
-  login(): Promise<User>
+  login(roomid: RoomId): Promise<User>
   logout(): Promise<void>
-  getUser(uid: Uid): Promise<User>
-  saveUser(user: User): Promise<User>
+  getUser(roomid: RoomId, uid: Uid): Promise<User>
+  saveUser(roomid: RoomId, user: User): Promise<User>
 }
 
 export default UserRepositoryInterface

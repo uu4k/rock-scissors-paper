@@ -1,28 +1,34 @@
 import UserRepositoryInterface from '@/repositories/user-repository-interface'
-import User from '@/models/user/user'
-import Uid from '@/models/user/uid'
-import Name from '@/models/user/name'
+import User from '@/models/room/user/user'
+import Uid from '@/models/room/user/uid'
+import Name from '@/models/room/user/name'
+import RoomId from '@/models/room/id'
 
 class AuthService {
   constructor(private userRepository: UserRepositoryInterface) {}
 
-  public login(): Promise<User> {
-    return this.userRepository.login()
+  public login(roomid: string): Promise<User> {
+    return this.userRepository.login(new RoomId(roomid))
   }
 
   public logout(): void {
     this.userRepository.logout()
   }
 
-  public updateUserName(uid: string, newName: string): Promise<User> {
+  public updateUserName(
+    roomid: string,
+    uid: string,
+    newName: string
+  ): Promise<User> {
     // const originUser = this.userRepository.getUser(new Uid(uid))
+    // TODO factory化
     const newUser = new User(new Uid(uid), new Name(newName))
 
-    return this.userRepository.saveUser(newUser)
+    return this.userRepository.saveUser(new RoomId(roomid), newUser)
   }
 
-  public getUser(uid: string): Promise<User> {
-    return this.userRepository.getUser(new Uid(uid))
+  public getUser(roomid: string, uid: string): Promise<User> {
+    return this.userRepository.getUser(new RoomId(roomid), new Uid(uid))
   }
 }
 
