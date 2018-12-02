@@ -1,7 +1,6 @@
-import User from '@/models/room/user/user'
-import Name from '@/models/room/user/name'
-import Uid from '@/models/room/user/uid'
-import RoomId from '@/models/room/id'
+import User from '@/models/entry/user/user'
+import Uid from '@/models/entry/user/uid'
+import RoomId from '@/models/open/room/id'
 
 interface UserRepositoryInterface {
   login(roomid: RoomId): Promise<User>

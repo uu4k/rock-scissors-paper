@@ -18,11 +18,11 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import VueRouter from "vue-router";
-import AuthService from "@/services/auth-service";
 import UserRepository from "@/repositories/firebase/user-repository";
-import User from "@/models/room/user/user";
-import Uid from "@/models/room/user/uid";
-import Name from "@/models/room/user/name";
+import User from "@/models/entry/user/user";
+import Uid from "@/models/entry/user/uid";
+import Name from "@/models/entry/user/name";
+import EntryService from "@/services/entry-service";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
@@ -38,7 +38,7 @@ export default class Room extends Vue {
   public async beforeRouteEnter(to: any, from: VueRouter, next: any) {
     // TODO DI
     const db = firebase.firestore();
-    const authService = new AuthService(new UserRepository(db));
+    const authService = new EntryService(new UserRepository(db));
 
     const user = await authService.login(to.params.roomId);
 
@@ -47,13 +47,15 @@ export default class Room extends Vue {
     });
   }
 
+  // TODO パラメータ変更検知 beforeRouteUpdate
+
   public created() {
     // TODO リポジトリに出したい
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         // TODO DI
         const db = firebase.firestore();
-        const authService = new AuthService(new UserRepository(db));
+        const authService = new EntryService(new UserRepository(db));
 
         authService.getUser(this.$route.params.roomId, user.uid).then(user => {
           this.user = user;
@@ -67,10 +69,10 @@ export default class Room extends Vue {
   public handleInputName(): void {
     // TODO DI
     const db = firebase.firestore();
-    const authService = new AuthService(new UserRepository(db));
+    const entryService = new EntryService(new UserRepository(db));
     if (this.user) {
-      authService
-        .updateUserName(
+      entryService
+        .setUserName(
           this.$route.params.roomId,
           this.user.uid,
           this.input_username

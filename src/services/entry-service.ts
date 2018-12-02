@@ -1,10 +1,10 @@
 import UserRepositoryInterface from '@/repositories/user-repository-interface'
-import User from '@/models/room/user/user'
-import Uid from '@/models/room/user/uid'
-import Name from '@/models/room/user/name'
-import RoomId from '@/models/room/id'
+import User from '@/models/entry/user/user'
+import Uid from '@/models/entry/user/uid'
+import Name from '@/models/entry/user/name'
+import RoomId from '@/models/open/room/id'
 
-class AuthService {
+class EntryService {
   constructor(private userRepository: UserRepositoryInterface) {}
 
   public login(roomid: string): Promise<User> {
@@ -15,7 +15,7 @@ class AuthService {
     this.userRepository.logout()
   }
 
-  public updateUserName(
+  public setUserName(
     roomid: string,
     uid: string,
     newName: string
@@ -32,4 +32,4 @@ class AuthService {
   }
 }
 
-export default AuthService
+export default EntryService
