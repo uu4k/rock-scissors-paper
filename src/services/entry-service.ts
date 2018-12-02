@@ -3,11 +3,18 @@ import User from '@/models/entry/user/user'
 import Uid from '@/models/entry/user/uid'
 import Name from '@/models/entry/user/name'
 import RoomId from '@/models/open/room/id'
+import RoomRepositoryInterface from '@/repositories/room-repository-interface'
 
 class EntryService {
-  constructor(private userRepository: UserRepositoryInterface) {}
+  constructor(
+    private roomRepository: RoomRepositoryInterface,
+    private userRepository: UserRepositoryInterface
+  ) {}
 
   public login(roomid: string): Promise<User> {
+    if (!this.roomRepository.exists(new RoomId(roomid))) {
+      throw new ApplicationError('対象のルームが存在しません')
+    }
     return this.userRepository.login(new RoomId(roomid))
   }
 

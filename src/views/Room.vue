@@ -25,6 +25,8 @@ import Name from "@/models/entry/user/name";
 import EntryService from "@/services/entry-service";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import RoomRepository from "@/repositories/firebase/room-repository";
+import OpenService from "@/services/open-service";
 
 Component.registerHooks(["beforeRouteEnter"]);
 
@@ -35,16 +37,25 @@ export default class Room extends Vue {
   public error: string = "";
   public input_username: string = "";
 
-  public async beforeRouteEnter(to: any, from: VueRouter, next: any) {
+  public async beforeRouteEnter(to: any, from: any, next: any) {
     // TODO DI
     const db = firebase.firestore();
-    const authService = new EntryService(new UserRepository(db));
+    const entryService = new EntryService(
+      new RoomRepository(db),
+      new UserRepository(db)
+    );
+    const openService = new OpenService(new RoomRepository(db));
 
-    const user = await authService.login(to.params.roomId);
+    if (to.params.roomId) {
+      const user = await entryService.login(to.params.roomId);
 
-    next((component: any) => {
-      component.user = user;
-    });
+      next((component: any) => {
+        component.user = user;
+      });
+    } else {
+      const room = await openService.openRoom();
+      next("/room/" + room.id);
+    }
   }
 
   // TODO パラメータ変更検知 beforeRouteUpdate
@@ -55,9 +66,12 @@ export default class Room extends Vue {
       if (user) {
         // TODO DI
         const db = firebase.firestore();
-        const authService = new EntryService(new UserRepository(db));
+        const entryService = new EntryService(
+          new RoomRepository(db),
+          new UserRepository(db)
+        );
 
-        authService.getUser(this.$route.params.roomId, user.uid).then(user => {
+        entryService.getUser(this.$route.params.roomId, user.uid).then(user => {
           this.user = user;
         });
       } else {
@@ -69,7 +83,10 @@ export default class Room extends Vue {
   public handleInputName(): void {
     // TODO DI
     const db = firebase.firestore();
-    const entryService = new EntryService(new UserRepository(db));
+    const entryService = new EntryService(
+      new RoomRepository(db),
+      new UserRepository(db)
+    );
     if (this.user) {
       entryService
         .setUserName(

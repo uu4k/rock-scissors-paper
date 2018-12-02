@@ -10,7 +10,7 @@ import 'firebase/auth'
 class UserRepository implements UserRepositoryInterface {
   constructor(private db: firebase.firestore.Firestore) {}
 
-  public login(roomid: RoomId) {
+  public login(roomid: RoomId): Promise<User> {
     return firebase
       .auth()
       .signInAnonymously()
@@ -29,12 +29,11 @@ class UserRepository implements UserRepositoryInterface {
       })
   }
 
-  public logout() {
+  public logout(): Promise<void> {
     return firebase.auth().signOut()
   }
 
-  public getUser(roomid: RoomId, uid: Uid) {
-    console.log(uid.uid)
+  public getUser(roomid: RoomId, uid: Uid): Promise<User> {
     return this.db
       .collection('rooms')
       .doc(roomid.id)
@@ -50,7 +49,7 @@ class UserRepository implements UserRepositoryInterface {
       })
   }
 
-  public saveUser(roomid: RoomId, user: User) {
+  public saveUser(roomid: RoomId, user: User): Promise<User> {
     const userdata: any = {
       uid: user.uid
     }
@@ -73,16 +72,6 @@ class UserRepository implements UserRepositoryInterface {
         throw new ApplicationError('ユーザー情報の登録に失敗しました')
       })
   }
-
-  // public setUserName(name: Name) {
-  //   if (this._user) {
-  //     this._user = new User(this._user.uid, name)
-
-  //     return this.getUser()
-  //   } else {
-  //     throw new ApplicationError('ユーザー情報が存在しません')
-  //   }
-  // }
 
   private createUserObject(uid: string, name?: string): User {
     const argUid = new Uid(uid)
