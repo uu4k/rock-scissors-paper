@@ -78,9 +78,7 @@ class UserRepository implements UserRepositoryInterface {
     const argName = name ? new Name(name) : undefined
 
     // TODO factory化
-    const user = new User(argUid, argName)
-    Object.freeze(user)
-    return user
+    return new User(argUid, argName)
   }
 
   private createUserObjectByUserDoc(

@@ -7,9 +7,17 @@
     <div class="input_name" v-if="user && !user.name">
       <input
         type="text"
-        v-model="input_username"
+        v-model="inputUsername"
         @keyup.enter="handleInputName"
         placeholder="なまえをにゅうりょくしてください"
+      >
+    </div>
+    <div>
+      <input
+        type="text"
+        v-model="inputMessageBody"
+        @keyup.enter="handleInputMessage"
+        placeholder="めっせーじをにゅうりょくしてください"
       >
     </div>
   </div>
@@ -27,15 +35,20 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import RoomRepository from "@/repositories/firebase/room-repository";
 import OpenService from "@/services/open-service";
+import Users from "@/models/entry/users";
+import PostService from "@/services/post-service";
+import MessageRepository from "@/repositories/firebase/message-repository";
 
 Component.registerHooks(["beforeRouteEnter"]);
 
 @Component({})
 export default class Room extends Vue {
+  public entrys: Users = new Users();
   public user: User | null = null; // TODO ログイン状態の管理方法検討
   public loading: boolean = true;
   public error: string = "";
-  public input_username: string = "";
+  public inputUsername: string = "";
+  public inputMessageBody: string = "";
 
   public async beforeRouteEnter(to: any, from: any, next: any) {
     // TODO DI
@@ -62,8 +75,8 @@ export default class Room extends Vue {
 
   public created() {
     // TODO リポジトリに出したい
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
+    firebase.auth().onAuthStateChanged(fbuser => {
+      if (fbuser) {
         // TODO DI
         const db = firebase.firestore();
         const entryService = new EntryService(
@@ -71,13 +84,18 @@ export default class Room extends Vue {
           new UserRepository(db)
         );
 
-        entryService.getUser(this.$route.params.roomId, user.uid).then(user => {
-          this.user = user;
-        });
+        entryService
+          .getUser(this.$route.params.roomId, fbuser.uid)
+          .then(user => {
+            this.user = user;
+          });
       } else {
         this.user = null;
       }
     });
+
+    // TODO ルームのユーザの参加を観測して反映
+    // TODO ルームのメッセージの変更を観測して反映
   }
 
   public handleInputName(): void {
@@ -92,7 +110,7 @@ export default class Room extends Vue {
         .setUserName(
           this.$route.params.roomId,
           this.user.uid,
-          this.input_username
+          this.inputUsername
         )
         .then(user => {
           this.user = user;
@@ -100,6 +118,21 @@ export default class Room extends Vue {
         .catch(() => {
           this.error = "ユーザ情報の更新に失敗しました";
         });
+    } else {
+      this.error = "ユーザ情報が存在しません";
+    }
+  }
+
+  public handleInputMessage(): void {
+    const db = firebase.firestore();
+    const postService = new PostService(new MessageRepository(db));
+
+    if (this.user) {
+      postService.post(
+        this.$route.params.roomId,
+        this.user,
+        this.inputMessageBody
+      );
     } else {
       this.error = "ユーザ情報が存在しません";
     }
