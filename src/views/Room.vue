@@ -20,11 +20,15 @@
         placeholder="めっせーじをにゅうりょくしてください"
       >
     </div>
+    <div>
+      <show-message v-for="message in messages.asList()" :message="message" :key="message.id"/>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
+import ShowMessage from "@/components/ShowMessage.vue";
 import VueRouter from "vue-router";
 import "firebase/firestore";
 import EntryService from "@/services/entry-service";
@@ -37,6 +41,8 @@ import firebase from "firebase/app";
 import Users from "@/models/entry/users";
 import container from "@/config/ioc-config";
 import SERVICE_IDENTIFIER from "@/constants/service-identifier";
+import Change from "@/models/post/changes/change";
+import Messages from "@/models/post/messages";
 
 Component.registerHooks(["beforeRouteEnter"]);
 const entryService: EntryService = container.get<EntryService>(
@@ -49,9 +55,12 @@ const postService: PostService = container.get<PostService>(
   SERVICE_IDENTIFIER.POST
 );
 
-@Component({})
+@Component({
+  components: { ShowMessage }
+})
 export default class Room extends Vue {
   public entrys: Users = new Users();
+  public messages: Messages = new Messages();
   public user: User | null = null; // TODO ログイン状態の管理方法検討
   public loading: boolean = true;
   public error: string = "";
@@ -74,13 +83,8 @@ export default class Room extends Vue {
   // TODO ルーム変更検知 beforeRouteUpdate
 
   public created() {
-    // TODO リポジトリに出したい
     firebase.auth().onAuthStateChanged(fbuser => {
       if (fbuser) {
-        const entryService: EntryService = container.get<EntryService>(
-          SERVICE_IDENTIFIER.ENTRY
-        );
-
         entryService
           .getUser(this.$route.params.roomId, fbuser.uid)
           .then(user => {
@@ -88,11 +92,19 @@ export default class Room extends Vue {
           });
       } else {
         this.user = null;
+        // TODO トップに戻る？
       }
     });
 
     // TODO ルームのユーザの参加を観測して反映
-    // TODO ルームのメッセージの変更を観測して反映
+
+    // ルームのメッセージの変更を観測して反映
+    postService.setMessageSynchronizer(
+      this.$route.params.roomId,
+      (change: Change) => {
+        this.messages = postService.changeMessages(this.messages, change);
+      }
+    );
   }
 
   public handleInputName(): void {

@@ -7,6 +7,8 @@ import User from '@/models/entry/user/user'
 import Id from '@/models/post/message/id'
 import Body from '@/models/post/message/body'
 import { inject, injectable } from 'inversify'
+import Change from '@/models/post/changes/change'
+import TYPE_IDENTIFIER from '@/models/post/changes/type-identifier'
 
 @injectable()
 class MessageRepository implements MessageRepositoryInterface {
@@ -51,6 +53,27 @@ class MessageRepository implements MessageRepositoryInterface {
       })
   }
 
+  public onMessagesChanged(roomid: RoomId, sync: (change: Change) => void) {
+    this.db
+      .collection('rooms')
+      .doc(roomid.id)
+      .collection('messages')
+      .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          const message = this.createMessageObjectByMessageDoc(change.doc)
+          if (change.type === 'added') {
+            sync(new Change(TYPE_IDENTIFIER.ADDED, message))
+          }
+          if (change.type === 'modified') {
+            sync(new Change(TYPE_IDENTIFIER.MODIFIED, message))
+          }
+          if (change.type === 'removed') {
+            sync(new Change(TYPE_IDENTIFIER.REMOVED, message))
+          }
+        })
+      })
+  }
+
   private createMessageObject(id: string, body: string): Message {
     return new Message(new Id(id), new Body(body))
   }
@@ -60,7 +83,7 @@ class MessageRepository implements MessageRepositoryInterface {
   ): Message {
     const data: any = doc.data()
     if (doc.exists && data) {
-      return this.createMessageObject(data.uid, data.name)
+      return this.createMessageObject(doc.id, data.body)
     } else {
       throw new ApplicationError('メッセージが存在しません')
     }

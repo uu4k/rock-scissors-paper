@@ -23,11 +23,10 @@ class UserRepository implements UserRepositoryInterface {
         throw new ApplicationError('ユーザー情報の初期化に失敗しました')
       })
       .then(cred => {
+        // TODO onAuthChangeでまかなえるならそちらにロジック移動(多分二重処理になる)
         if (cred.user) {
           const userForSave = new User(new Uid(cred.user.uid))
           return this.saveUser(roomid, userForSave)
-
-          // TODO ユーザ情報の自動同期設定も入れる
         } else {
           throw new ApplicationError('ユーザー情報の初期化に失敗しました')
         }
