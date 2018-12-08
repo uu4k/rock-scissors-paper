@@ -6,9 +6,14 @@ import RoomId from '@/models/open/room/id'
 
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import { inject, injectable } from 'inversify'
 
+@injectable()
 class UserRepository implements UserRepositoryInterface {
-  constructor(private db: firebase.firestore.Firestore) {}
+  constructor(
+    @inject('db')
+    private db: firebase.firestore.Firestore
+  ) {}
 
   public login(roomid: RoomId): Promise<User> {
     return firebase

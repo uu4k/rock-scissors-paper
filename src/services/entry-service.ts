@@ -4,10 +4,15 @@ import Uid from '@/models/entry/user/uid'
 import Name from '@/models/entry/user/name'
 import RoomId from '@/models/open/room/id'
 import RoomRepositoryInterface from '@/repositories/room-repository-interface'
+import { inject, injectable } from 'inversify'
+import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
 
+@injectable()
 class EntryService {
   constructor(
+    @inject(REPOSITORY_IDENTIFIER.ROOM)
     private roomRepository: RoomRepositoryInterface,
+    @inject(REPOSITORY_IDENTIFIER.USER)
     private userRepository: UserRepositoryInterface
   ) {}
 

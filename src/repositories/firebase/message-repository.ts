@@ -6,9 +6,14 @@ import firebase from 'firebase/app'
 import User from '@/models/entry/user/user'
 import Id from '@/models/post/message/id'
 import Body from '@/models/post/message/body'
+import { inject, injectable } from 'inversify'
 
+@injectable()
 class MessageRepository implements MessageRepositoryInterface {
-  constructor(private db: firebase.firestore.Firestore) {}
+  constructor(
+    @inject('db')
+    private db: firebase.firestore.Firestore
+  ) {}
 
   public post(roomid: RoomId, user: User, message: Message): Promise<Message> {
     return this.db

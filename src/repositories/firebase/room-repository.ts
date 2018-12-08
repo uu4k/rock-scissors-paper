@@ -1,9 +1,13 @@
 import RoomRepositoryInterface from '../room-repository-interface'
 import Room from '@/models/open/room/room'
 import Id from '@/models/open/room/id'
-
+import { inject, injectable } from 'inversify'
+@injectable()
 class RoomRepository implements RoomRepositoryInterface {
-  constructor(private db: firebase.firestore.Firestore) {}
+  constructor(
+    @inject('db')
+    private db: firebase.firestore.Firestore
+  ) {}
 
   public open(): Promise<Room> {
     return this.db

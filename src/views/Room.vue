@@ -26,20 +26,28 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import VueRouter from "vue-router";
-import UserRepository from "@/repositories/firebase/user-repository";
+import "firebase/firestore";
+import EntryService from "@/services/entry-service";
+import OpenService from "@/services/open-service";
+import PostService from "@/services/post-service";
 import User from "@/models/entry/user/user";
 import Uid from "@/models/entry/user/uid";
 import Name from "@/models/entry/user/name";
-import EntryService from "@/services/entry-service";
 import firebase from "firebase/app";
-import "firebase/firestore";
-import RoomRepository from "@/repositories/firebase/room-repository";
-import OpenService from "@/services/open-service";
 import Users from "@/models/entry/users";
-import PostService from "@/services/post-service";
-import MessageRepository from "@/repositories/firebase/message-repository";
+import container from "@/config/ioc-config";
+import SERVICE_IDENTIFIER from "@/constants/service-identifier";
 
 Component.registerHooks(["beforeRouteEnter"]);
+const entryService: EntryService = container.get<EntryService>(
+  SERVICE_IDENTIFIER.ENTRY
+);
+const openService: OpenService = container.get<OpenService>(
+  SERVICE_IDENTIFIER.OPEN
+);
+const postService: PostService = container.get<PostService>(
+  SERVICE_IDENTIFIER.POST
+);
 
 @Component({})
 export default class Room extends Vue {
@@ -51,14 +59,6 @@ export default class Room extends Vue {
   public inputMessageBody: string = "";
 
   public async beforeRouteEnter(to: any, from: any, next: any) {
-    // TODO DI
-    const db = firebase.firestore();
-    const entryService = new EntryService(
-      new RoomRepository(db),
-      new UserRepository(db)
-    );
-    const openService = new OpenService(new RoomRepository(db));
-
     if (to.params.roomId) {
       const user = await entryService.login(to.params.roomId);
 
@@ -71,17 +71,14 @@ export default class Room extends Vue {
     }
   }
 
-  // TODO パラメータ変更検知 beforeRouteUpdate
+  // TODO ルーム変更検知 beforeRouteUpdate
 
   public created() {
     // TODO リポジトリに出したい
     firebase.auth().onAuthStateChanged(fbuser => {
       if (fbuser) {
-        // TODO DI
-        const db = firebase.firestore();
-        const entryService = new EntryService(
-          new RoomRepository(db),
-          new UserRepository(db)
+        const entryService: EntryService = container.get<EntryService>(
+          SERVICE_IDENTIFIER.ENTRY
         );
 
         entryService
@@ -99,12 +96,6 @@ export default class Room extends Vue {
   }
 
   public handleInputName(): void {
-    // TODO DI
-    const db = firebase.firestore();
-    const entryService = new EntryService(
-      new RoomRepository(db),
-      new UserRepository(db)
-    );
     if (this.user) {
       entryService
         .setUserName(
@@ -124,9 +115,6 @@ export default class Room extends Vue {
   }
 
   public handleInputMessage(): void {
-    const db = firebase.firestore();
-    const postService = new PostService(new MessageRepository(db));
-
     if (this.user) {
       postService.post(
         this.$route.params.roomId,
