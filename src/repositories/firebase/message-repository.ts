@@ -25,7 +25,8 @@ class MessageRepository implements MessageRepositoryInterface {
       .add({
         uid: user.uid,
         author: user.name,
-        body: message.body
+        body: message.body,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
       })
       .then(docRef => {
         return new Message(new Id(docRef.id), new Body(message.body))
@@ -42,6 +43,7 @@ class MessageRepository implements MessageRepositoryInterface {
       .collection('rooms')
       .doc(roomid.id)
       .collection('messages')
+      .orderBy('created_at', 'asc')
       .get()
       .then(query => {
         const messages: Message[] = []
@@ -58,6 +60,7 @@ class MessageRepository implements MessageRepositoryInterface {
       .collection('rooms')
       .doc(roomid.id)
       .collection('messages')
+      .orderBy('created_at', 'asc')
       .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
           const message = this.createMessageObjectByMessageDoc(change.doc)

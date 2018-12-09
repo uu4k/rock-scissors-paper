@@ -2,6 +2,7 @@ import RoomRepositoryInterface from '../room-repository-interface'
 import Room from '@/models/open/room/room'
 import Id from '@/models/open/room/id'
 import { inject, injectable } from 'inversify'
+import firebase from 'firebase'
 @injectable()
 class RoomRepository implements RoomRepositoryInterface {
   constructor(
@@ -12,7 +13,9 @@ class RoomRepository implements RoomRepositoryInterface {
   public open(): Promise<Room> {
     return this.db
       .collection('rooms')
-      .add({})
+      .add({
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      })
       .then(docRef => {
         return this.createRoomObject(docRef.id)
       })
