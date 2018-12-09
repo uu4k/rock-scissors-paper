@@ -9,6 +9,8 @@ import Body from '@/models/post/message/body'
 import { inject, injectable } from 'inversify'
 import Change from '@/models/post/changes/change'
 import TYPE_IDENTIFIER from '@/models/post/changes/type-identifier'
+import Uid from '@/models/entry/user/uid'
+import Name from '@/models/entry/user/name'
 
 @injectable()
 class MessageRepository implements MessageRepositoryInterface {
@@ -77,8 +79,18 @@ class MessageRepository implements MessageRepositoryInterface {
       })
   }
 
-  private createMessageObject(id: string, body: string): Message {
-    return new Message(new Id(id), new Body(body))
+  private createMessageObject(
+    id: string,
+    body: string,
+    uid: string,
+    author: string
+  ): Message {
+    return new Message(
+      new Id(id),
+      new Body(body),
+      new Uid(uid),
+      new Name(author)
+    )
   }
 
   private createMessageObjectByMessageDoc(
@@ -86,7 +98,7 @@ class MessageRepository implements MessageRepositoryInterface {
   ): Message {
     const data: any = doc.data()
     if (doc.exists && data) {
-      return this.createMessageObject(doc.id, data.body)
+      return this.createMessageObject(doc.id, data.body, data.uid, data.author)
     } else {
       throw new ApplicationError('メッセージが存在しません')
     }

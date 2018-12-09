@@ -21,7 +21,12 @@
       >
     </div>
     <div>
-      <show-message v-for="message in messages.asList()" :message="message" :key="message.id"/>
+      <show-message
+        v-for="message in messages.asList()"
+        :message="message"
+        :mine="user && message.uid === user.uid"
+        :key="message.id"
+      />
     </div>
   </div>
 </template>
