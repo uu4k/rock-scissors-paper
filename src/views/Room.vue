@@ -9,15 +9,8 @@
         type="text"
         v-model="inputUsername"
         @keyup.enter="handleInputName"
+        @keypress="setCanUsernameSubmit"
         placeholder="なまえをにゅうりょくしてください"
-      >
-    </div>
-    <div>
-      <input
-        type="text"
-        v-model="inputMessageBody"
-        @keyup.enter="handleInputMessage"
-        placeholder="めっせーじをにゅうりょくしてください"
       >
     </div>
     <div class="chat">
@@ -27,6 +20,15 @@
         :mine="user && message.uid === user.uid"
         :key="message.id"
       />
+    </div>
+    <div>
+      <input
+        type="text"
+        v-model="inputMessageBody"
+        @keyup.enter="handleInputMessage"
+        @keypress="setCanMessageSubmit"
+        placeholder="めっせーじをにゅうりょくしてください"
+      >
     </div>
   </div>
 </template>
@@ -71,6 +73,8 @@ export default class Room extends Vue {
   public error: string = "";
   public inputUsername: string = "";
   public inputMessageBody: string = "";
+  public canMessageSubmit: boolean = false;
+  public canUsernameSubmit: boolean = false;
 
   public async beforeRouteEnter(to: any, from: any, next: any) {
     if (to.params.roomId) {
@@ -109,10 +113,16 @@ export default class Room extends Vue {
       (change: Change) => {
         this.messages = postService.changeMessages(this.messages, change);
       }
+
+      // TODO 自動スクロール
     );
   }
 
   public handleInputName(): void {
+    if (!this.canUsernameSubmit) {
+      return;
+    }
+
     if (this.user) {
       entryService
         .setUserName(
@@ -126,21 +136,44 @@ export default class Room extends Vue {
         .catch(() => {
           this.error = "ユーザ情報の更新に失敗しました";
         });
+      this.canUsernameSubmit = false;
     } else {
       this.error = "ユーザ情報が存在しません";
     }
   }
 
   public handleInputMessage(): void {
+    if (!this.canMessageSubmit) {
+      return;
+    }
+
     if (this.user) {
       postService.post(
         this.$route.params.roomId,
         this.user,
         this.inputMessageBody
       );
+      this.inputMessageBody = "";
+      this.canMessageSubmit = false;
     } else {
       this.error = "ユーザ情報が存在しません";
     }
+  }
+
+  public setCanMessageSubmit(): void {
+    if (!this.canMessageSubmit) {
+      return;
+    }
+
+    this.canMessageSubmit = true;
+  }
+
+  public setCanUsernameSubmit(): void {
+    if (!this.canUsernameSubmit) {
+      return;
+    }
+
+    this.canUsernameSubmit = true;
   }
 }
 </script>
