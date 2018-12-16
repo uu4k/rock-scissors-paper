@@ -1,9 +1,17 @@
 <template>
-  <div class="speech-bubble">
-    <div class="sb-bubble sb-line3" :class="{'sb-right': !mine, 'sb-left': mine}">
-      <p>{{ message.body }}</p>
+  <section :class="{'container-right': !mine, 'container-left': mine}">
+    <div class="icon">アイコン</div>
+    <div class="name">名前</div>
+    <div class="message">
+      <div class="speech-bubble">
+        <div class="sb-bubble sb-line3" :class="{'sb-right': !mine, 'sb-left': mine}">
+          <p>{{ message.body }}</p>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="empty"></div>
+    <div class="postdate">01/01 00:00:00</div>
+  </section>
 </template>
 
 <script lang="ts">
@@ -17,7 +25,45 @@ export default class ShowMessage extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
+.container-left {
+  display: grid;
+  grid-template:
+    "icon message empty" 1fr
+    "icon message empty" 1fr
+    "name message postdate" 1fr /
+    80px 1fr 80px;
+}
+
+.container-right {
+  display: grid;
+  grid-template:
+    "enpty message icon" 1fr
+    "empty message icon" 1fr
+    "postdate message name" 1fr /
+    80px 1fr 80px;
+}
+
+.icon {
+  grid-area: icon;
+}
+
+.message {
+  grid-area: message;
+}
+
+.emtpty {
+  grid-area: empty;
+}
+
+.name {
+  grid-area: name;
+}
+
+.postdate {
+  grid-area: postdate;
+}
+
 /* https://codepen.io/kinformation/pen/vewVrP */
 .speech-bubble {
   overflow: hidden;

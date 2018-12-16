@@ -20,7 +20,7 @@
         placeholder="めっせーじをにゅうりょくしてください"
       >
     </div>
-    <div>
+    <div class="chat">
       <show-message
         v-for="message in messages.asList()"
         :message="message"
@@ -144,3 +144,22 @@ export default class Room extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+div .room {
+  display: grid;
+  grid-template-columns: 100vw;
+  grid-template-rows: 1fr;
+
+  line-height: 1.5em;
+}
+
+div .chat {
+  justify-self: center;
+  align-self: center;
+
+  padding: 5px 10px;
+  max-width: 600px;
+  text-align: center;
+}
+</style>
