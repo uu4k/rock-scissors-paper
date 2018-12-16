@@ -4,15 +4,27 @@
     <div class="loading" v-if="loading">読み込み中...</div>
     <div class="error" v-if="error">{{ error }}</div>
     <div class="name" v-if="user && user.name != undefined">{{user.name}}</div>
-    <div class="input_name" v-if="user && !user.name">
-      <input
-        type="text"
-        v-model="inputUsername"
-        @keyup.enter="handleInputName"
-        @keypress="setCanUsernameSubmit"
-        placeholder="なまえをにゅうりょくしてください"
-      >
-    </div>
+    <b-modal
+      v-model="showUsernameModal"
+      title="なまえをにゅうりょくしてください"
+      ok-only
+      ok-title="OK"
+      hide-header-close
+      no-close-on-backdrop
+      no-close-on-esc
+      @ok="handleInputName"
+    >
+      <b-form-group label-for="input_username">
+        <b-form-input
+          id="input_username"
+          v-model="inputUsername"
+          type="text"
+          @keyup.enter.native="handleInputName"
+          @keypress.native="setCanUsernameSubmit"
+          placeholder
+        ></b-form-input>
+      </b-form-group>
+    </b-modal>
     <div class="chat">
       <show-message
         v-for="message in messages.asList()"
@@ -75,6 +87,7 @@ export default class Room extends Vue {
   public inputMessageBody: string = "";
   public canMessageSubmit: boolean = false;
   public canUsernameSubmit: boolean = false;
+  public showUsernameModal: boolean = false;
 
   public async beforeRouteEnter(to: any, from: any, next: any) {
     if (to.params.roomId) {
@@ -98,6 +111,10 @@ export default class Room extends Vue {
           .getUser(this.$route.params.roomId, fbuser.uid)
           .then(user => {
             this.user = user;
+
+            if (!this.user || !this.user.name) {
+              this.showUsernameModal = true;
+            }
           });
       } else {
         this.user = null;
@@ -137,6 +154,7 @@ export default class Room extends Vue {
           this.error = "ユーザ情報の更新に失敗しました";
         });
       this.canUsernameSubmit = false;
+      this.showUsernameModal = false;
     } else {
       this.error = "ユーザ情報が存在しません";
     }
@@ -161,18 +179,10 @@ export default class Room extends Vue {
   }
 
   public setCanMessageSubmit(): void {
-    if (!this.canMessageSubmit) {
-      return;
-    }
-
     this.canMessageSubmit = true;
   }
 
   public setCanUsernameSubmit(): void {
-    if (!this.canUsernameSubmit) {
-      return;
-    }
-
     this.canUsernameSubmit = true;
   }
 }
