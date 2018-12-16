@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="empty"></div>
-    <div class="postdate">01/01 00:00:00</div>
+    <div class="postdate">{{ message.createdAt }}</div>
   </section>
 </template>
 

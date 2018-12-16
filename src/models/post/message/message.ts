@@ -2,6 +2,8 @@ import Id from './id'
 import Body from './body'
 import Uid from '@/models/entry/user/uid'
 import Name from '@/models/entry/user/name'
+import moment from 'moment'
+import 'moment/locale/ja'
 
 class Message {
   constructor(
@@ -27,6 +29,10 @@ class Message {
 
   public get body(): string {
     return this._body ? this._body.body : ''
+  }
+
+  public get createdAt(): string {
+    return this._createdAt ? moment(this._createdAt).fromNow() : ''
   }
 }
 

@@ -31,7 +31,9 @@ class MessageRepository implements MessageRepositoryInterface {
         created_at: firebase.firestore.FieldValue.serverTimestamp()
       })
       .then(docRef => {
-        return new Message(new Id(docRef.id), new Body(message.body))
+        return docRef.get().then(doc => {
+          return this.createMessageObjectByMessageDoc(doc)
+        })
       })
       .catch(error => {
         console.log(error)
@@ -83,13 +85,15 @@ class MessageRepository implements MessageRepositoryInterface {
     id: string,
     body: string,
     uid: string,
-    author: string
+    author: string,
+    created_at: Date
   ): Message {
     return new Message(
       new Id(id),
       new Body(body),
       new Uid(uid),
-      new Name(author)
+      new Name(author),
+      created_at
     )
   }
 
@@ -98,7 +102,13 @@ class MessageRepository implements MessageRepositoryInterface {
   ): Message {
     const data: any = doc.data()
     if (doc.exists && data) {
-      return this.createMessageObject(doc.id, data.body, data.uid, data.author)
+      return this.createMessageObject(
+        doc.id,
+        data.body,
+        data.uid,
+        data.author,
+        new Date(data.created_at.seconds * 1000)
+      )
     } else {
       throw new ApplicationError('メッセージが存在しません')
     }
