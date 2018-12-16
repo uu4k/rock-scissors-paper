@@ -33,14 +33,17 @@
         :key="message.id"
       />
     </div>
-    <div>
-      <input
-        type="text"
+    <div class="post">
+      <b-form-input
+        id="post_message"
         v-model="inputMessageBody"
-        @keyup.enter="handleInputMessage"
-        @keypress="setCanMessageSubmit"
+        type="text"
+        @keyup.enter.native="handleInputMessage"
+        @keypress.native="setCanMessageSubmit"
         placeholder="めっせーじをにゅうりょくしてください"
-      >
+        class="inputmessage"
+      ></b-form-input>
+      <b-button variant="primary" @click="handleClickPostMessageButton" class="postbutton">POST</b-button>
     </div>
   </div>
 </template>
@@ -178,6 +181,11 @@ export default class Room extends Vue {
     }
   }
 
+  public handleClickPostMessageButton(): void {
+    this.setCanMessageSubmit();
+    this.handleInputMessage();
+  }
+
   public setCanMessageSubmit(): void {
     this.canMessageSubmit = true;
   }
@@ -189,13 +197,22 @@ export default class Room extends Vue {
 </script>
 
 <style lang="scss" scoped>
-div .room {
-}
-
 div .chat {
   margin: 0 auto 0;
   padding: 5px 10px;
   text-align: center;
   max-width: 600px;
+}
+
+div .post {
+  margin: 0 auto 0;
+  padding: 5px 10px;
+  text-align: center;
+  max-width: 600px;
+
+  display: grid;
+  grid-template:
+    "inputmessage postbutton" 1fr /
+    1fr 80px;
 }
 </style>
