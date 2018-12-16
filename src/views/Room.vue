@@ -190,19 +190,12 @@ export default class Room extends Vue {
 
 <style lang="scss" scoped>
 div .room {
-  display: grid;
-  grid-template-columns: 100vw;
-  grid-template-rows: 1fr;
-
-  line-height: 1.5em;
 }
 
 div .chat {
-  justify-self: center;
-  align-self: center;
-
+  margin: 0 auto 0;
   padding: 5px 10px;
-  max-width: 600px;
   text-align: center;
+  max-width: 600px;
 }
 </style>
