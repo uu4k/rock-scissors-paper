@@ -1,7 +1,6 @@
 import UserRepositoryInterface from '../user-repository-interface'
 import User from '@/models/entry/user/user'
 import Uid from '@/models/entry/user/uid'
-import Name from '@/models/entry/user/name'
 import RoomId from '@/models/open/room/id'
 
 import firebase from 'firebase/app'
@@ -79,7 +78,7 @@ class UserRepository implements UserRepositoryInterface {
 
   private createUserObject(uid: string, name?: string): User {
     const argUid = new Uid(uid)
-    const argName = name ? new Name(name) : undefined
+    const argName = name ? name : undefined
 
     // TODO factory化
     return new User(argUid, argName)

@@ -5,12 +5,10 @@ import Messages from '@/models/post/messages'
 import firebase from 'firebase/app'
 import User from '@/models/entry/user/user'
 import Id from '@/models/post/message/id'
-import Body from '@/models/post/message/body'
 import { inject, injectable } from 'inversify'
 import Change from '@/models/post/changes/change'
 import TYPE_IDENTIFIER from '@/models/post/changes/type-identifier'
 import Uid from '@/models/entry/user/uid'
-import Name from '@/models/entry/user/name'
 
 @injectable()
 class MessageRepository implements MessageRepositoryInterface {
@@ -86,15 +84,9 @@ class MessageRepository implements MessageRepositoryInterface {
     body: string,
     uid: string,
     author: string,
-    created_at: Date
+    createdAt: Date
   ): Message {
-    return new Message(
-      new Id(id),
-      new Body(body),
-      new Uid(uid),
-      new Name(author),
-      created_at
-    )
+    return new Message(new Id(id), body, new Uid(uid), author, createdAt)
   }
 
   private createMessageObjectByMessageDoc(

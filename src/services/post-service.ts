@@ -2,7 +2,6 @@ import Message from '@/models/post/message/message'
 import User from '@/models/entry/user/user'
 import MessageRepositoryInterface from '@/repositories/message-repository-interface'
 import RoomId from '@/models/open/room/id'
-import Body from '@/models/post/message/body'
 import Messages from '@/models/post/messages'
 import { inject, injectable } from 'inversify'
 import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
@@ -20,7 +19,7 @@ class PostService {
     return this.messageRepository.post(
       new RoomId(roomid),
       user,
-      new Message(undefined, new Body(body))
+      new Message(undefined, body)
     )
   }
 

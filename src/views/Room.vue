@@ -58,7 +58,6 @@ import OpenService from "@/services/open-service";
 import PostService from "@/services/post-service";
 import User from "@/models/entry/user/user";
 import Uid from "@/models/entry/user/uid";
-import Name from "@/models/entry/user/name";
 import firebase from "firebase/app";
 import Users from "@/models/entry/users";
 import container from "@/config/ioc-config";

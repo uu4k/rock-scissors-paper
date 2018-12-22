@@ -1,7 +1,6 @@
 import UserRepositoryInterface from '@/repositories/user-repository-interface'
 import User from '@/models/entry/user/user'
 import Uid from '@/models/entry/user/uid'
-import Name from '@/models/entry/user/name'
 import RoomId from '@/models/open/room/id'
 import RoomRepositoryInterface from '@/repositories/room-repository-interface'
 import { inject, injectable } from 'inversify'
@@ -34,7 +33,7 @@ class EntryService {
   ): Promise<User> {
     // const originUser = this.userRepository.getUser(new Uid(uid))
     // TODO factory化
-    const newUser = new User(new Uid(uid), new Name(newName))
+    const newUser = new User(new Uid(uid), newName)
 
     return this.userRepository.saveUser(new RoomId(roomid), newUser)
   }
