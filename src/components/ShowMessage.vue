@@ -82,7 +82,7 @@ export default class ShowMessage extends Vue {
 }
 
 .speech-bubble {
-  background: #ffffff;
+  /* background: #ffffff; */
 }
 
 .speech-bubble:after {

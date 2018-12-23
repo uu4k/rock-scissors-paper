@@ -1,29 +1,33 @@
 <template>
   <div class="room">
-    <h1>room: {{ $route.params.roomId }}</h1>
-    <div class="error" v-if="error">{{ error }}</div>
-    <div class="name" v-if="user && user.name != undefined">{{user.name}}</div>
-    <b-modal
-      v-model="showUsernameModal"
-      title="なまえをにゅうりょくしてください"
-      ok-only
-      ok-title="OK"
-      hide-header-close
-      no-close-on-backdrop
-      no-close-on-esc
-      @ok="handleInputName"
-    >
-      <b-form-group label-for="input_username">
-        <b-form-input
-          id="input_username"
-          v-model="inputUsername"
-          type="text"
-          @keyup.enter.native="handleInputName"
-          @keypress.native="setCanUsernameSubmit"
-          placeholder
-        ></b-form-input>
-      </b-form-group>
-    </b-modal>
+    <v-layout row justify-center>
+      <h1>room: {{ $route.params.roomId }}</h1>
+    </v-layout>
+    <v-layout row justify-center>
+      <v-dialog v-model="showUsernameModal" persistent max-width="450px">
+        <v-card>
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex>
+                  <v-text-field
+                    v-model="inputUsername"
+                    label="なまえをにゅうりょくしてください"
+                    required
+                    @keyup.enter.native="handleInputName"
+                    @keypress.native="setCanUsernameSubmit"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat @click="handleInputName">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-layout>
     <div class="chat">
       <show-message
         v-for="message in messages.asList()"
@@ -32,17 +36,19 @@
         :key="message.id"
       />
     </div>
+    <div class="error" v-if="error">{{ error }}</div>
     <div class="post">
-      <b-form-input
-        id="post_message"
+      <v-text-field
         v-model="inputMessageBody"
-        type="text"
+        id="post_message"
+        label="post_message"
+        placeholder="めっせーじをにゅうりょくしてください"
         @keyup.enter.native="handleInputMessage"
         @keypress.native="setCanMessageSubmit"
-        placeholder="めっせーじをにゅうりょくしてください"
+        solo
         class="inputmessage"
-      ></b-form-input>
-      <b-button variant="primary" @click="handleClickPostMessageButton" class="postbutton">POST</b-button>
+      ></v-text-field>
+      <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
     </div>
   </div>
 </template>
@@ -121,9 +127,13 @@ export default class Room extends Vue {
       this.$route.params.roomId,
       (change: Change) => {
         this.messages = postService.changeMessages(this.messages, change);
+        if (this.isBottom()) {
+          this.$vuetify.goTo(document.body.scrollHeight, {
+            duration: 300,
+            offset: 0
+          });
+        }
       }
-
-      // TODO 自動スクロール
     );
   }
 
@@ -181,6 +191,14 @@ export default class Room extends Vue {
 
   public setCanUsernameSubmit(): void {
     this.canUsernameSubmit = true;
+  }
+
+  public isBottom(): boolean {
+    const currentScrollHeight = window.pageYOffset;
+    const documentScrollHeight = document.body.scrollHeight;
+
+    console.log(currentScrollHeight > documentScrollHeight - 700);
+    return currentScrollHeight > documentScrollHeight - 700;
   }
 }
 </script>
