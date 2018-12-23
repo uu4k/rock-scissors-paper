@@ -14,6 +14,8 @@
                     v-model="inputUsername"
                     label="なまえをにゅうりょくしてください"
                     required
+                    maxlength="20"
+                    counter="20"
                     @keyup.enter.native="handleInputName"
                     @keypress.native="setCanUsernameSubmit"
                   ></v-text-field>
@@ -35,8 +37,10 @@
         :mine="user && message.uid === user.uid"
         :key="message.id"
       />
+      <div class="error" v-if="error">
+        <v-alert :value="error" type="error">{{error}}</v-alert>
+      </div>
     </div>
-    <div class="error" v-if="error">{{ error }}</div>
     <div class="post">
       <v-text-field
         v-model="inputMessageBody"
@@ -46,6 +50,9 @@
         @keyup.enter.native="handleInputMessage"
         @keypress.native="setCanMessageSubmit"
         solo
+        required
+        counter="200"
+        maxlength="200"
         class="inputmessage"
       ></v-text-field>
       <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
