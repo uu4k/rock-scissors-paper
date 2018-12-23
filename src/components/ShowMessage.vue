@@ -10,15 +10,22 @@
       </div>
     </div>
     <div class="empty"></div>
-    <div class="postdate">{{ message.createdAt }}</div>
+    <div class="postdate">{{ message.createdAt | fromNow }}</div>
   </section>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Message from "@/models/post/message/message";
+import moment from "moment";
 
-@Component
+@Component({
+  filters: {
+    fromNow(date: Date): string {
+      return date ? moment(date).fromNow() : "";
+    }
+  }
+})
 export default class ShowMessage extends Vue {
   @Prop({ required: true }) private message!: Message;
   @Prop({ required: true }) private mine!: boolean;

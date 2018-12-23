@@ -1,6 +1,5 @@
 import Id from './id'
 import Uid from '@/models/entry/user/uid'
-import moment from 'moment'
 import 'moment/locale/ja'
 
 class Message {
@@ -9,8 +8,7 @@ class Message {
     private _body?: string,
     private _uid?: Uid,
     private _author?: string,
-    private _createdAt?: Date,
-    private _updatedAt?: Date
+    private _createdAt?: Date
   ) {}
 
   public get id(): string {
@@ -29,8 +27,8 @@ class Message {
     return this._body ? this._body : ''
   }
 
-  public get createdAt(): string {
-    return this._createdAt ? moment(this._createdAt).fromNow() : ''
+  public get createdAt(): Date {
+    return this._createdAt || new Date()
   }
 }
 
