@@ -92,14 +92,17 @@ class MessageRepository implements MessageRepositoryInterface {
   private createMessageObjectByMessageDoc(
     doc: firebase.firestore.DocumentSnapshot
   ): Message {
-    const data: any = doc.data()
+    const data: firebase.firestore.DocumentData | undefined = doc.data()
     if (doc.exists && data) {
+      const createdAt = data.created_at
+        ? new Date(data.created_at.seconds * 1000)
+        : new Date()
       return this.createMessageObject(
         doc.id,
         data.body,
         data.uid,
         data.author,
-        new Date(data.created_at.seconds * 1000)
+        createdAt
       )
     } else {
       throw new ApplicationError('メッセージが存在しません')
