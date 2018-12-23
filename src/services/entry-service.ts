@@ -15,7 +15,7 @@ class EntryService {
     private userRepository: UserRepositoryInterface
   ) {}
 
-  public login(roomid: string): Promise<User> {
+  public login(roomid: string): Promise<void> {
     if (!this.roomRepository.exists(new RoomId(roomid))) {
       throw new ApplicationError('対象のルームが存在しません')
     }
@@ -40,6 +40,10 @@ class EntryService {
 
   public getUser(roomid: string, uid: string): Promise<User> {
     return this.userRepository.getUser(new RoomId(roomid), new Uid(uid))
+  }
+
+  public setAuthSynchronizer(roomid: string, action: (user?: User) => void) {
+    this.userRepository.onAuthChanged(new RoomId(roomid), action)
   }
 }
 

@@ -1,7 +1,7 @@
 <template>
   <section :class="{'container-right': !mine, 'container-left': mine}">
     <div class="icon">アイコン</div>
-    <div class="name">名前</div>
+    <div class="name">{{ message.author }}</div>
     <div class="message">
       <div class="speech-bubble">
         <div class="sb-bubble sb-line3" :class="{'sb-right': !mine, 'sb-left': mine}">

@@ -1,7 +1,6 @@
 <template>
   <div class="room">
     <h1>room: {{ $route.params.roomId }}</h1>
-    <div class="loading" v-if="loading">読み込み中...</div>
     <div class="error" v-if="error">{{ error }}</div>
     <div class="name" v-if="user && user.name != undefined">{{user.name}}</div>
     <b-modal
@@ -58,7 +57,6 @@ import OpenService from "@/services/open-service";
 import PostService from "@/services/post-service";
 import User from "@/models/entry/user/user";
 import Uid from "@/models/entry/user/uid";
-import firebase from "firebase/app";
 import Users from "@/models/entry/users";
 import container from "@/config/ioc-config";
 import SERVICE_IDENTIFIER from "@/constants/service-identifier";
@@ -82,7 +80,7 @@ const postService: PostService = container.get<PostService>(
 export default class Room extends Vue {
   public entrys: Users = new Users();
   public messages: Messages = new Messages();
-  public user: User | null = null; // TODO ログイン状態の管理方法検討
+  public user: User | null = null;
   public loading: boolean = true;
   public error: string = "";
   public inputUsername: string = "";
@@ -93,11 +91,9 @@ export default class Room extends Vue {
 
   public async beforeRouteEnter(to: any, from: any, next: any) {
     if (to.params.roomId) {
-      const user = await entryService.login(to.params.roomId);
+      await entryService.login(to.params.roomId);
 
-      next((component: any) => {
-        component.user = user;
-      });
+      next((component: any) => {});
     } else {
       const room = await openService.openRoom();
       next("/room/" + room.id);
@@ -107,22 +103,16 @@ export default class Room extends Vue {
   // TODO ルーム変更検知 beforeRouteUpdate
 
   public created() {
-    firebase.auth().onAuthStateChanged(fbuser => {
-      if (fbuser) {
-        entryService
-          .getUser(this.$route.params.roomId, fbuser.uid)
-          .then(user => {
-            this.user = user;
+    entryService.setAuthSynchronizer(
+      this.$route.params.roomId,
+      (user?: User) => {
+        this.user = user || null;
 
-            if (!this.user || !this.user.name) {
-              this.showUsernameModal = true;
-            }
-          });
-      } else {
-        this.user = null;
-        // TODO トップに戻る？
+        if (!this.user || !this.user.name) {
+          this.showUsernameModal = true;
+        }
       }
-    });
+    );
 
     // TODO ルームのユーザの参加を観測して反映
 

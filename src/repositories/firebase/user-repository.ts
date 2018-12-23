@@ -6,6 +6,7 @@ import RoomId from '@/models/open/room/id'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { inject, injectable } from 'inversify'
+import Room from '@/models/open/room/room'
 
 @injectable()
 class UserRepository implements UserRepositoryInterface {
@@ -14,21 +15,15 @@ class UserRepository implements UserRepositoryInterface {
     private db: firebase.firestore.Firestore
   ) {}
 
-  public login(roomid: RoomId): Promise<User> {
+  public login(roomid: RoomId): Promise<void> {
     return firebase
       .auth()
       .signInAnonymously()
       .catch(error => {
         throw new ApplicationError('ユーザー情報の初期化に失敗しました')
       })
-      .then(cred => {
-        // TODO onAuthChangeでまかなえるならそちらにロジック移動(多分二重処理になる)
-        if (cred.user) {
-          const userForSave = new User(new Uid(cred.user.uid))
-          return this.saveUser(roomid, userForSave)
-        } else {
-          throw new ApplicationError('ユーザー情報の初期化に失敗しました')
-        }
+      .then(() => {
+        return
       })
   }
 
@@ -74,6 +69,21 @@ class UserRepository implements UserRepositoryInterface {
         console.log(error)
         throw new ApplicationError('ユーザー情報の登録に失敗しました')
       })
+  }
+
+  public onAuthChanged(roomid: RoomId, action: (user?: User) => void): void {
+    firebase.auth().onAuthStateChanged(fbuser => {
+      if (fbuser) {
+        const userForSave = new User(new Uid(fbuser.uid))
+        this.saveUser(roomid, userForSave).then(() => {
+          this.getUser(roomid, new Uid(fbuser.uid)).then(user => {
+            action(user)
+          })
+        })
+      } else {
+        action(undefined)
+      }
+    })
   }
 
   private createUserObject(uid: string, name?: string): User {
