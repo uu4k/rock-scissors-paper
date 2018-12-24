@@ -66,6 +66,7 @@ class MessageRepository implements MessageRepositoryInterface {
       .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
           const message = this.createMessageObjectByMessageDoc(change.doc)
+          // TODO OCP違反
           if (change.type === 'added') {
             sync(new Change(TYPE_IDENTIFIER.ADDED, message))
           }

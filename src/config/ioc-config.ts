@@ -16,6 +16,10 @@ import SERVICE_IDENTIFIER from '@/constants/service-identifier'
 import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
 import '@/config/firebase'
 import firebase from 'firebase'
+import OutbreakService from '@/services/outbreak-service'
+import PickService from '@/services/pick-service'
+import BattleRepositoryInterface from '@/repositories/battle-repository-interface'
+import BattleRepository from '@/repositories/firebase/battle-repository'
 
 let container = new Container()
 const db = firebase.firestore()
@@ -38,6 +42,11 @@ container
   .whenTargetIsDefault()
 
 container
+  .bind<BattleRepositoryInterface>(REPOSITORY_IDENTIFIER.BATTLE)
+  .to(BattleRepository)
+  .whenTargetIsDefault()
+
+container
   .bind<OpenService>(SERVICE_IDENTIFIER.OPEN)
   .to(OpenService)
   .whenTargetIsDefault()
@@ -50,6 +59,16 @@ container
 container
   .bind<EntryService>(SERVICE_IDENTIFIER.ENTRY)
   .to(EntryService)
+  .whenTargetIsDefault()
+
+container
+  .bind<OutbreakService>(SERVICE_IDENTIFIER.OUTBREAK)
+  .to(OutbreakService)
+  .whenTargetIsDefault()
+
+container
+  .bind<PickService>(SERVICE_IDENTIFIER.PICK)
+  .to(PickService)
   .whenTargetIsDefault()
 
 export default container

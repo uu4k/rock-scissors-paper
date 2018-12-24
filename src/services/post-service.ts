@@ -35,6 +35,7 @@ class PostService {
   }
 
   public changeMessages(messages: Messages, change: Change) {
+    // TODO OCP違反
     switch (change.type) {
       case TYPE_IDENTIFIER.ADDED:
         return messages.add(change.message)
