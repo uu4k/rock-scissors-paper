@@ -4,9 +4,9 @@ import Battle from '@/models/outbreak/battle/battle'
 import User from '@/models/entry/user/user'
 import Hand from '@/models/pick/hand/hand'
 import { injectable, inject } from 'inversify'
-import firebase from 'firebase'
+import * as firebase from 'firebase/app'
+import 'firebase/firestore'
 import Id from '@/models/outbreak/battle/id'
-import Room from '@/models/open/room/room'
 
 @injectable()
 class BattleRepository implements BattleRepositoryInterface {
@@ -14,6 +14,7 @@ class BattleRepository implements BattleRepositoryInterface {
     @inject('db')
     private db: firebase.firestore.Firestore
   ) {}
+
   public outbreak(roomid: RoomId): Promise<Battle> {
     return this.db
       .collection('rooms')
@@ -61,9 +62,27 @@ class BattleRepository implements BattleRepositoryInterface {
       })
   }
 
+  public isPicked(roomid: RoomId, battle: Battle, user: User) {
+    return this.db
+      .collection('rooms')
+      .doc(roomid.id)
+      .collection('battles')
+      .doc(battle.id)
+      .collection('hands')
+      .where('uid', '==', user.uid)
+      .get()
+      .then(docs => {
+        return !docs.empty
+      })
+      .catch(error => {
+        console.log(error)
+        throw new ApplicationError('手の取得に失敗しました')
+      })
+  }
+
   public onBattleStateChanged(
     roomid: RoomId,
-    actionForOpened: (currentBattle?: Battle) => void,
+    actionForOpened: (currentBattle: Battle) => void,
     actionForClosed: (currentBattle?: Battle) => void
   ): void {
     // TODO コレクション自体のsubscriber(戦闘開始観測)とバトル単体のsubscriber(戦闘終了観測)分ける？

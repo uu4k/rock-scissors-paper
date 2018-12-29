@@ -18,7 +18,7 @@ class OutbreakService {
 
   public setBattleSynchronizer(
     roomid: string,
-    actionForOpened: (openedBattle?: Battle) => void,
+    actionForOpened: (openedBattle: Battle) => void,
     actionForClosed: (closedBattle?: Battle) => void
   ): void {
     return this.battleRepository.onBattleStateChanged(

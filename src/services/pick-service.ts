@@ -14,12 +14,26 @@ class PickService {
   ) {}
 
   public pick(
-    roomid: RoomId,
+    roomid: string,
     battle: Battle,
     user: User,
     hand: Hand
   ): Promise<void> {
-    return this.battleRepository.pick(roomid, battle, user, hand)
+    return this.isPicked(roomid, battle, user).then((isPicked: boolean) => {
+      if (isPicked) {
+        throw new ApplicationError('すでに手を出しています')
+      }
+
+      return this.battleRepository.pick(new RoomId(roomid), battle, user, hand)
+    })
+  }
+
+  public isPicked(
+    roomid: string,
+    battle: Battle,
+    user: User
+  ): Promise<boolean> {
+    return this.battleRepository.isPicked(new RoomId(roomid), battle, user)
   }
 }
 

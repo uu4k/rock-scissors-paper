@@ -41,7 +41,7 @@
         <v-alert :value="error" type="error">{{error}}</v-alert>
       </div>
     </div>
-    <div class="post">
+    <div class="post" v-if="!battle">
       <v-text-field
         v-model="inputMessageBody"
         id="post_message"
@@ -56,6 +56,12 @@
         class="inputmessage"
       ></v-text-field>
       <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
+      <v-btn color="success" @click="handleClickOutbreakButton" class="outbreakbutton">BATTLE</v-btn>
+    </div>
+    <div class="rock_scissor_paper" v-if="battle">
+      <v-btn color="info" @click="handleClickRockButton" class="rock" :disabled="isPicked">ぐー</v-btn>
+      <v-btn color="info" @click="handleClickScissorButton" class="scissor" :disabled="isPicked">ちょき</v-btn>
+      <v-btn color="info" @click="handleClickPaperButton" class="paper" :disabled="isPicked">ぱー</v-btn>
     </div>
   </div>
 </template>
@@ -75,6 +81,11 @@ import container from "@/config/ioc-config";
 import SERVICE_IDENTIFIER from "@/constants/service-identifier";
 import Change from "@/models/post/changes/change";
 import Messages from "@/models/post/messages";
+import OutbreakService from "@/services/outbreak-service";
+import PickService from "@/services/pick-service";
+import Battle from "@/models/outbreak/battle/battle";
+import Hand from "@/models/pick/hand/hand";
+import HandFactory from "@/models/pick/hand-factory";
 
 Component.registerHooks(["beforeRouteEnter"]);
 const entryService: EntryService = container.get<EntryService>(
@@ -86,6 +97,13 @@ const openService: OpenService = container.get<OpenService>(
 const postService: PostService = container.get<PostService>(
   SERVICE_IDENTIFIER.POST
 );
+const outbreakService: OutbreakService = container.get<OutbreakService>(
+  SERVICE_IDENTIFIER.OUTBREAK
+);
+const pickService: PickService = container.get<PickService>(
+  SERVICE_IDENTIFIER.PICK
+);
+const handFactory: HandFactory = container.get<HandFactory>(HandFactory.name);
 
 @Component({
   components: { ShowMessage }
@@ -93,8 +111,10 @@ const postService: PostService = container.get<PostService>(
 export default class Room extends Vue {
   public entrys: Users = new Users();
   public messages: Messages = new Messages();
+  public battle: Battle | null = null;
   public user: User | null = null;
   public loading: boolean = true;
+  public isPicked: boolean = false;
   public error: string = "";
   public inputUsername: string = "";
   public inputMessageBody: string = "";
@@ -124,6 +144,14 @@ export default class Room extends Vue {
         if (!this.user || !this.user.name) {
           this.showUsernameModal = true;
         }
+
+        if (this.user && this.battle) {
+          pickService
+            .isPicked(this.$route.params.roomId, this.battle, this.user)
+            .then((isPicked: boolean) => {
+              this.isPicked = isPicked;
+            });
+        }
       }
     );
 
@@ -140,6 +168,28 @@ export default class Room extends Vue {
             offset: 0
           });
         }
+      }
+    );
+
+    outbreakService.setBattleSynchronizer(
+      this.$route.params.roomId,
+      battle => {
+        // じゃんけん開始を観測して表示切り替え
+        this.battle = battle;
+
+        if (this.user && this.battle) {
+          pickService
+            .isPicked(this.$route.params.roomId, this.battle, this.user)
+            .then((isPicked: boolean) => {
+              this.isPicked = isPicked;
+            });
+        }
+      },
+      battle => {
+        // じゃんけん終了を観測して表示切り替え
+        this.battle = null;
+
+        this.isPicked = false;
       }
     );
   }
@@ -192,6 +242,23 @@ export default class Room extends Vue {
     this.handleInputMessage();
   }
 
+  public handleClickOutbreakButton(): void {
+    // じゃんけん開始
+    outbreakService.outbreak(this.$route.params.roomId);
+  }
+
+  public handleClickRockButton(): void {
+    this.pick(handFactory.createHand("rock"));
+  }
+
+  public handleClickScissorButton(): void {
+    this.pick(handFactory.createHand("scissor"));
+  }
+
+  public handleClickPaperButton(): void {
+    this.pick(handFactory.createHand("paper"));
+  }
+
   public setCanMessageSubmit(): void {
     this.canMessageSubmit = true;
   }
@@ -204,14 +271,22 @@ export default class Room extends Vue {
     const currentScrollHeight = window.pageYOffset;
     const documentScrollHeight = document.body.scrollHeight;
 
-    console.log(currentScrollHeight > documentScrollHeight - 700);
     return currentScrollHeight > documentScrollHeight - 700;
+  }
+
+  private pick(hand: Hand): void {
+    if (this.battle && this.user) {
+      pickService
+        .pick(this.$route.params.roomId, this.battle, this.user, hand)
+        .then(() => (this.isPicked = true));
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-div .chat {
+div .chat,
+div .rock_scissor_paper {
   margin: 0 auto 0;
   padding: 5px 10px;
   text-align: center;
@@ -226,7 +301,7 @@ div .post {
 
   display: grid;
   grid-template:
-    "inputmessage postbutton" 1fr /
-    1fr 80px;
+    "inputmessage postbutton outbreakbutton" 1fr /
+    1fr 100px 100px;
 }
 </style>

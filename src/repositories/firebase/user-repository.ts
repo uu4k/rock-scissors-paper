@@ -3,7 +3,7 @@ import User from '@/models/entry/user/user'
 import Uid from '@/models/entry/user/uid'
 import RoomId from '@/models/open/room/id'
 
-import firebase from 'firebase/app'
+import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import { inject, injectable } from 'inversify'
 import Room from '@/models/open/room/room'

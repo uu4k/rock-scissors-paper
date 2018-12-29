@@ -15,13 +15,15 @@ import MessageRepository from '@/repositories/firebase/message-repository'
 import SERVICE_IDENTIFIER from '@/constants/service-identifier'
 import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
 import '@/config/firebase'
-import firebase from 'firebase'
+import * as firebase from 'firebase/app'
+import 'firebase/firestore'
 import OutbreakService from '@/services/outbreak-service'
 import PickService from '@/services/pick-service'
 import BattleRepositoryInterface from '@/repositories/battle-repository-interface'
 import BattleRepository from '@/repositories/firebase/battle-repository'
+import HandFactory from '@/models/pick/hand-factory'
 
-let container = new Container()
+const container = new Container()
 const db = firebase.firestore()
 
 container.bind<firebase.firestore.Firestore>('db').toConstantValue(db)
@@ -69,6 +71,11 @@ container
 container
   .bind<PickService>(SERVICE_IDENTIFIER.PICK)
   .to(PickService)
+  .whenTargetIsDefault()
+
+container
+  .bind<HandFactory>(HandFactory.name)
+  .to(HandFactory)
   .whenTargetIsDefault()
 
 export default container

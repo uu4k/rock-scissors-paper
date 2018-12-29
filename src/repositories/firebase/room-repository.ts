@@ -2,7 +2,8 @@ import RoomRepositoryInterface from '../room-repository-interface'
 import Room from '@/models/open/room/room'
 import Id from '@/models/open/room/id'
 import { inject, injectable } from 'inversify'
-import firebase from 'firebase'
+import * as firebase from 'firebase/app'
+import 'firebase/firestore'
 @injectable()
 class RoomRepository implements RoomRepositoryInterface {
   constructor(
