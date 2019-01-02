@@ -11,7 +11,7 @@
       </v-btn>
       <v-btn to="/">Home</v-btn>
       <v-btn to="/about">About</v-btn>
-      <v-btn :to="{ name: 'room'}">Create Room</v-btn>
+      <v-btn :href="$router.resolve({name: 'room'}).href">Create Room</v-btn>
     </v-toolbar>
 
     <v-content>
