@@ -7,6 +7,7 @@ import { injectable, inject } from 'inversify'
 import * as firebase from 'firebase/app'
 import 'firebase/firestore'
 import Id from '@/models/outbreak/battle/id'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class BattleRepository implements BattleRepositoryInterface {

@@ -5,6 +5,7 @@ import RoomId from '@/models/open/room/id'
 import User from '@/models/entry/user/user'
 import Hand from '@/models/pick/hand/hand'
 import BattleRepositoryInterface from '@/repositories/battle-repository-interface'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class PickService {

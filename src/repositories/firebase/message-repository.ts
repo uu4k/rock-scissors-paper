@@ -10,6 +10,7 @@ import { inject, injectable } from 'inversify'
 import Change from '@/models/post/changes/change'
 import TYPE_IDENTIFIER from '@/models/post/changes/type-identifier'
 import Uid from '@/models/entry/user/uid'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class MessageRepository implements MessageRepositoryInterface {

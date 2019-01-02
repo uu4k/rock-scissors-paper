@@ -4,6 +4,7 @@ import Id from '@/models/open/room/id'
 import { inject, injectable } from 'inversify'
 import * as firebase from 'firebase/app'
 import 'firebase/firestore'
+import ApplicationError from '@/error/application-error'
 @injectable()
 class RoomRepository implements RoomRepositoryInterface {
   constructor(

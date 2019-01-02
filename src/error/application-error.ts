@@ -7,3 +7,5 @@ class ApplicationError implements Error {
     return this.name + ': ' + this.message
   }
 }
+
+export default ApplicationError

@@ -4,6 +4,24 @@
       <h1>room: {{ $route.params.roomId }}</h1>
     </v-layout>
     <v-layout row justify-center>
+      <v-dialog v-model="isError" persistent max-width="450px">
+        <v-card>
+          <v-card-title class="headline red lighten-2" primary-title>Error</v-card-title>
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex>{{error}}</v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat @click="error=null">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-layout>
+    <v-layout row justify-center>
       <v-dialog v-model="showUsernameModal" persistent max-width="450px">
         <v-card>
           <v-card-text>
@@ -37,9 +55,6 @@
         :mine="user && message.uid === user.uid"
         :key="message.id"
       />
-      <div class="error" v-if="error">
-        <v-alert :value="error" type="error">{{error}}</v-alert>
-      </div>
     </div>
     <div class="post" v-if="!battle">
       <v-text-field
@@ -106,7 +121,12 @@ const pickService: PickService = container.get<PickService>(
 const handFactory: HandFactory = container.get<HandFactory>(HandFactory.name);
 
 @Component({
-  components: { ShowMessage }
+  components: { ShowMessage },
+  computed: {
+    isError: function() {
+      return !!this.$data.error;
+    }
+  }
 })
 export default class Room extends Vue {
   public entrys: Users = new Users();
@@ -132,8 +152,6 @@ export default class Room extends Vue {
       next("/room/" + room.id);
     }
   }
-
-  // TODO ルーム変更検知 beforeRouteUpdate
 
   public created() {
     entryService.setAuthSynchronizer(

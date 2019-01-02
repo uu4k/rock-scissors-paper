@@ -7,6 +7,7 @@ import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import { inject, injectable } from 'inversify'
 import Room from '@/models/open/room/room'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class UserRepository implements UserRepositoryInterface {

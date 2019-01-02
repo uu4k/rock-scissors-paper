@@ -5,6 +5,7 @@ import RoomId from '@/models/open/room/id'
 import RoomRepositoryInterface from '@/repositories/room-repository-interface'
 import { inject, injectable } from 'inversify'
 import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class EntryService {

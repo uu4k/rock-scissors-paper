@@ -10,6 +10,11 @@ Vue.use(Vuetify)
 
 Vue.config.productionTip = false
 
+Vue.config.errorHandler = (err, vm, info) => {
+  alert(err)
+  console.log(err, vm, info)
+}
+
 new Vue({
   router,
   store,

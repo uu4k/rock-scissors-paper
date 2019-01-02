@@ -3,6 +3,7 @@ import Scissor from './hand/scissor'
 import Rock from './hand/rock'
 import Hand from './hand/hand'
 import { injectable } from 'inversify'
+import ApplicationError from '@/error/application-error'
 
 @injectable()
 class HandFactory {
