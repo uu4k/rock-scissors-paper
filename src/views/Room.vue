@@ -20,8 +20,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-layout>
-    <v-layout row justify-center>
       <v-dialog v-model="showUsernameModal" persistent max-width="450px">
         <v-card>
           <v-card-text>
@@ -48,35 +46,47 @@
         </v-card>
       </v-dialog>
     </v-layout>
-    <div class="chat">
-      <show-message
-        v-for="message in messages.asList()"
-        :message="message"
-        :mine="user && message.uid === user.uid"
-        :key="message.id"
-      />
+    <div v-if="loading">
+      <v-layout justify-center>
+        <v-progress-circular :size="70" :width="7" color="purple" indeterminate></v-progress-circular>
+      </v-layout>
     </div>
-    <div class="post" v-if="!battle">
-      <v-text-field
-        v-model="inputMessageBody"
-        id="post_message"
-        label="post_message"
-        placeholder="めっせーじをにゅうりょくしてください"
-        @keyup.enter.native="handleInputMessage"
-        @keypress.native="setCanMessageSubmit"
-        solo
-        required
-        counter="200"
-        maxlength="200"
-        class="inputmessage"
-      ></v-text-field>
-      <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
-      <v-btn color="success" @click="handleClickOutbreakButton" class="outbreakbutton">BATTLE</v-btn>
-    </div>
-    <div class="rock_scissor_paper" v-if="battle">
-      <v-btn color="info" @click="handleClickRockButton" class="rock" :disabled="isPicked">ぐー</v-btn>
-      <v-btn color="info" @click="handleClickScissorButton" class="scissor" :disabled="isPicked">ちょき</v-btn>
-      <v-btn color="info" @click="handleClickPaperButton" class="paper" :disabled="isPicked">ぱー</v-btn>
+    <div v-if="!loading">
+      <div class="chat">
+        <show-message
+          v-for="message in messages.asList()"
+          :message="message"
+          :mine="user && message.uid === user.uid"
+          :key="message.id"
+        />
+      </div>
+      <div class="post" v-if="!battle">
+        <v-text-field
+          v-model="inputMessageBody"
+          id="post_message"
+          label="post_message"
+          placeholder="めっせーじをにゅうりょくしてください"
+          @keyup.enter.native="handleInputMessage"
+          @keypress.native="setCanMessageSubmit"
+          solo
+          required
+          counter="200"
+          maxlength="200"
+          class="inputmessage"
+        ></v-text-field>
+        <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
+        <v-btn color="success" @click="handleClickOutbreakButton" class="outbreakbutton">BATTLE</v-btn>
+      </div>
+      <div class="rock_scissor_paper" v-if="battle">
+        <v-btn color="info" @click="handleClickRockButton" class="rock" :disabled="isPicked">ぐー</v-btn>
+        <v-btn
+          color="info"
+          @click="handleClickScissorButton"
+          class="scissor"
+          :disabled="isPicked"
+        >ちょき</v-btn>
+        <v-btn color="info" @click="handleClickPaperButton" class="paper" :disabled="isPicked">ぱー</v-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -161,6 +171,8 @@ export default class Room extends Vue {
 
         if (!this.user || !this.user.name) {
           this.showUsernameModal = true;
+        } else {
+          this.loading = false;
         }
 
         if (this.user && this.battle) {
@@ -232,6 +244,7 @@ export default class Room extends Vue {
         });
       this.canUsernameSubmit = false;
       this.showUsernameModal = false;
+      this.loading = false;
     } else {
       this.error = "ユーザ情報が存在しません";
     }
