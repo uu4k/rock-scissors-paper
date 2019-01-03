@@ -6,6 +6,7 @@ import RoomRepositoryInterface from '@/repositories/room-repository-interface'
 import { inject, injectable } from 'inversify'
 import REPOSITORY_IDENTIFIER from '@/constants/repository-identifier'
 import ApplicationError from '@/error/application-error'
+import Icon from '@/models/entry/user/icon'
 
 @injectable()
 class EntryService {
@@ -27,14 +28,13 @@ class EntryService {
     this.userRepository.logout()
   }
 
-  public setUserName(
+  public setUserNameAndIcon(
     roomid: string,
     uid: string,
-    newName: string
+    newName: string,
+    newIcon: string
   ): Promise<User> {
-    // const originUser = this.userRepository.getUser(new Uid(uid))
-    // TODO factory化
-    const newUser = new User(new Uid(uid), newName)
+    const newUser = new User(new Uid(uid), newName, new Icon(newIcon))
 
     return this.userRepository.saveUser(new RoomId(roomid), newUser)
   }

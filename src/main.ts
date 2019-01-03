@@ -13,6 +13,7 @@ Vue.config.productionTip = false
 Vue.config.errorHandler = (err, vm, info) => {
   alert(err)
   console.log(err, vm, info)
+  vm.$data.error = err.message
 }
 
 new Vue({

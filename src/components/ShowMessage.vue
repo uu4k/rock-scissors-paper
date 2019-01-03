@@ -1,6 +1,8 @@
 <template>
   <section :class="{'container-right': !mine, 'container-left': mine}">
-    <div class="icon">アイコン</div>
+    <div class="icon">
+      <img :src="require('../assets/icons/' + message.icon_img)">
+    </div>
     <div class="name">{{ message.author }}</div>
     <div class="message">
       <div class="speech-bubble">
@@ -40,6 +42,10 @@ export default class ShowMessage extends Vue {
     "icon message empty" 1fr
     "name message postdate" 1fr /
     80px 1fr 80px;
+}
+
+div.icon > img {
+  width: 75px;
 }
 
 .container-right {

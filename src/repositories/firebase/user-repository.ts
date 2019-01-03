@@ -8,6 +8,7 @@ import 'firebase/auth'
 import { inject, injectable } from 'inversify'
 import Room from '@/models/open/room/room'
 import ApplicationError from '@/error/application-error'
+import Icon from '@/models/entry/user/icon'
 
 @injectable()
 class UserRepository implements UserRepositoryInterface {
@@ -55,6 +56,9 @@ class UserRepository implements UserRepositoryInterface {
     if (user.name) {
       userdata.name = user.name
     }
+    if (user.icon) {
+      userdata.icon = user.icon
+    }
 
     return this.db
       .collection('rooms')
@@ -87,12 +91,13 @@ class UserRepository implements UserRepositoryInterface {
     })
   }
 
-  private createUserObject(uid: string, name?: string): User {
+  private createUserObject(uid: string, name?: string, icon?: string): User {
     const argUid = new Uid(uid)
     const argName = name ? name : undefined
+    const argIcon = icon ? new Icon(icon) : undefined
 
     // TODO factory化
-    return new User(argUid, argName)
+    return new User(argUid, argName, argIcon)
   }
 
   private createUserObjectByUserDoc(
@@ -100,7 +105,7 @@ class UserRepository implements UserRepositoryInterface {
   ): User {
     const data: any = doc.data()
     if (doc.exists && data) {
-      return this.createUserObject(data.uid, data.name)
+      return this.createUserObject(data.uid, data.name, data.icon)
     } else {
       throw new ApplicationError('ユーザー情報が存在しません')
     }

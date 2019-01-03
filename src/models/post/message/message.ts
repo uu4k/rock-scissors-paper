@@ -1,6 +1,7 @@
 import Id from './id'
 import Uid from '@/models/entry/user/uid'
 import 'moment/locale/ja'
+import Icon from '@/models/entry/user/icon'
 
 class Message {
   constructor(
@@ -8,6 +9,7 @@ class Message {
     private _body?: string,
     private _uid?: Uid,
     private _author?: string,
+    private _icon?: Icon,
     private _createdAt?: Date
   ) {}
 
@@ -21,6 +23,10 @@ class Message {
 
   public get author(): string {
     return this._author ? this._author : ''
+  }
+
+  public get icon_img(): string {
+    return this._icon ? this._icon.icon_img : ''
   }
 
   public get body(): string {

@@ -11,6 +11,7 @@ import Change from '@/models/post/changes/change'
 import TYPE_IDENTIFIER from '@/models/post/changes/type-identifier'
 import Uid from '@/models/entry/user/uid'
 import ApplicationError from '@/error/application-error'
+import Icon from '@/models/entry/user/icon'
 
 @injectable()
 class MessageRepository implements MessageRepositoryInterface {
@@ -27,6 +28,7 @@ class MessageRepository implements MessageRepositoryInterface {
       .add({
         uid: user.uid,
         author: user.name,
+        icon: user.icon,
         body: message.body,
         created_at: firebase.firestore.FieldValue.serverTimestamp()
       })
@@ -87,9 +89,17 @@ class MessageRepository implements MessageRepositoryInterface {
     body: string,
     uid: string,
     author: string,
+    icon: string,
     createdAt: Date
   ): Message {
-    return new Message(new Id(id), body, new Uid(uid), author, createdAt)
+    return new Message(
+      new Id(id),
+      body,
+      new Uid(uid),
+      author,
+      new Icon(icon),
+      createdAt
+    )
   }
 
   private createMessageObjectByMessageDoc(
@@ -105,6 +115,7 @@ class MessageRepository implements MessageRepositoryInterface {
         data.body,
         data.uid,
         data.author,
+        data.icon,
         createdAt
       )
     } else {

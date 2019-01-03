@@ -37,6 +37,14 @@
                   ></v-text-field>
                 </v-flex>
               </v-layout>
+              <v-layout>
+                <v-flex>
+                  <label v-for="[key, val] in Array.from(selectableIcons)" :key="key">
+                    <input type="radio" v-model="inputUserIcon" :value="key" class="radio_icon">
+                    <img :src="require('../assets/icons/' + val)" class="radio_image">
+                  </label>
+                </v-flex>
+              </v-layout>
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -111,6 +119,7 @@ import PickService from "@/services/pick-service";
 import Battle from "@/models/outbreak/battle/battle";
 import Hand from "@/models/pick/hand/hand";
 import HandFactory from "@/models/pick/hand-factory";
+import Icon from "@/models/entry/user/icon";
 
 Component.registerHooks(["beforeRouteEnter"]);
 const entryService: EntryService = container.get<EntryService>(
@@ -135,6 +144,9 @@ const handFactory: HandFactory = container.get<HandFactory>(HandFactory.name);
   computed: {
     isError: function() {
       return !!this.$data.error;
+    },
+    selectableIcons: function() {
+      return Icon.SELECTABLE_ICONS;
     }
   }
 })
@@ -147,6 +159,7 @@ export default class Room extends Vue {
   public isPicked: boolean = false;
   public error: string = "";
   public inputUsername: string = "";
+  public inputUserIcon: string = "";
   public inputMessageBody: string = "";
   public canMessageSubmit: boolean = false;
   public canUsernameSubmit: boolean = false;
@@ -170,6 +183,7 @@ export default class Room extends Vue {
         this.user = user || null;
 
         if (!this.user || !this.user.name) {
+          this.inputUserIcon = Icon.SELECTABLE_ICONS.keys().next().value;
           this.showUsernameModal = true;
         } else {
           this.loading = false;
@@ -231,10 +245,11 @@ export default class Room extends Vue {
 
     if (this.user) {
       entryService
-        .setUserName(
+        .setUserNameAndIcon(
           this.$route.params.roomId,
           this.user.uid,
-          this.inputUsername
+          this.inputUsername,
+          this.inputUserIcon
         )
         .then(user => {
           this.user = user;
@@ -334,5 +349,20 @@ div .post {
   grid-template:
     "inputmessage postbutton outbreakbutton" 1fr /
     1fr 100px 100px;
+}
+
+input.radio_icon {
+  display: none;
+}
+
+input.radio_icon + .radio_image {
+  border: 3px #ffffff solid;
+  background-color: #ffffff;
+  width: 60px;
+}
+
+input.radio_icon:checked + .radio_image {
+  border: 3px #ff0000 solid;
+  background-color: #ffeeee;
 }
 </style>
