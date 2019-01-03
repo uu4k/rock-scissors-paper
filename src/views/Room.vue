@@ -24,32 +24,35 @@
         <v-card>
           <v-card-text>
             <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex>
-                  <v-text-field
-                    v-model="inputUsername"
-                    label="なまえをにゅうりょくしてください"
-                    required
-                    maxlength="20"
-                    counter="20"
-                    @keyup.enter.native="handleInputName"
-                    @keypress.native="setCanUsernameSubmit"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-              <v-layout>
-                <v-flex>
-                  <label v-for="[key, val] in Array.from(selectableIcons)" :key="key">
-                    <input type="radio" v-model="inputUserIcon" :value="key" class="radio_icon">
-                    <img :src="require('../assets/icons/' + val)" class="radio_image">
-                  </label>
-                </v-flex>
-              </v-layout>
+              <v-form v-model="usernameValid" @submit.prevent>
+                <v-layout wrap>
+                  <v-flex>
+                    <v-text-field
+                      v-model="inputUsername"
+                      label="なまえをにゅうりょくしてください"
+                      required
+                      :rules="usernameRules"
+                      maxlength="20"
+                      counter="20"
+                      @keyup.enter.native="handleInputName"
+                      @keypress.native="setCanUsernameSubmit"
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout>
+                  <v-flex>
+                    <label v-for="[key, val] in Array.from(selectableIcons)" :key="key">
+                      <input type="radio" v-model="inputUserIcon" :value="key" class="radio_icon">
+                      <img :src="require('../assets/icons/' + val)" class="radio_image">
+                    </label>
+                  </v-flex>
+                </v-layout>
+              </v-form>
             </v-container>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat @click="handleInputName">OK</v-btn>
+            <v-btn color="blue darken-1" flat @click="handleClickInputUsernameOKButton">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -68,23 +71,26 @@
           :key="message.id"
         />
       </div>
-      <div class="post" v-if="!battle">
-        <v-text-field
-          v-model="inputMessageBody"
-          id="post_message"
-          label="post_message"
-          placeholder="めっせーじをにゅうりょくしてください"
-          @keyup.enter.native="handleInputMessage"
-          @keypress.native="setCanMessageSubmit"
-          solo
-          required
-          counter="200"
-          maxlength="200"
-          class="inputmessage"
-        ></v-text-field>
-        <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
-        <v-btn color="success" @click="handleClickOutbreakButton" class="outbreakbutton">BATTLE</v-btn>
-      </div>
+      <v-form v-model="messageBodyValid" @submit.prevent>
+        <div class="post" v-if="!battle">
+          <v-text-field
+            v-model="inputMessageBody"
+            id="post_message"
+            label="post_message"
+            placeholder="めっせーじをにゅうりょくしてください"
+            @keyup.enter.native="handleInputMessage"
+            @keypress.native="setCanMessageSubmit"
+            solo
+            required
+            :rules="messageBodyRules"
+            counter="200"
+            maxlength="200"
+            class="inputmessage"
+          ></v-text-field>
+          <v-btn color="info" @click="handleClickPostMessageButton" class="postbutton">POST</v-btn>
+          <v-btn color="success" @click="handleClickOutbreakButton" class="outbreakbutton">BATTLE</v-btn>
+        </div>
+      </v-form>
       <div class="rock_scissor_paper" v-if="battle">
         <v-btn color="info" @click="handleClickRockButton" class="rock" :disabled="isPicked">ぐー</v-btn>
         <v-btn
@@ -165,6 +171,18 @@ export default class Room extends Vue {
   public canUsernameSubmit: boolean = false;
   public showUsernameModal: boolean = false;
 
+  public usernameValid: boolean = false;
+  public usernameRules = [
+    (v: any) => !!v || "なまえがにゅうりょくされていません",
+    (v: any) => v.length <= 20 || "なまえがながすぎます"
+  ];
+
+  public messageBodyValid: boolean = false;
+  public messageBodyRules = [
+    (v: any) => !!v || "めっせーじがにゅうりょくされていません",
+    (v: any) => v.length <= 200 || "めっせーじがながすぎます"
+  ];
+
   public async beforeRouteEnter(to: any, from: any, next: any) {
     if (to.params.roomId) {
       await entryService.login(to.params.roomId);
@@ -239,7 +257,7 @@ export default class Room extends Vue {
   }
 
   public handleInputName(): void {
-    if (!this.canUsernameSubmit) {
+    if (!this.canUsernameSubmit || !this.usernameValid) {
       return;
     }
 
@@ -266,7 +284,7 @@ export default class Room extends Vue {
   }
 
   public handleInputMessage(): void {
-    if (!this.canMessageSubmit) {
+    if (!this.canMessageSubmit || !this.messageBodyValid) {
       return;
     }
 
@@ -281,6 +299,11 @@ export default class Room extends Vue {
     } else {
       this.error = "ユーザ情報が存在しません";
     }
+  }
+
+  public handleClickInputUsernameOKButton(): void {
+    this.setCanUsernameSubmit();
+    this.handleInputName();
   }
 
   public handleClickPostMessageButton(): void {

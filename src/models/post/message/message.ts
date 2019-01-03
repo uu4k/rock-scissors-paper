@@ -2,6 +2,7 @@ import Id from './id'
 import Uid from '@/models/entry/user/uid'
 import 'moment/locale/ja'
 import Icon from '@/models/entry/user/icon'
+import ApplicationError from '@/error/application-error'
 
 class Message {
   constructor(
@@ -11,7 +12,11 @@ class Message {
     private _author?: string,
     private _icon?: Icon,
     private _createdAt?: Date
-  ) {}
+  ) {
+    if (!_body) {
+      throw new ApplicationError('メッセージが空です')
+    }
+  }
 
   public get id(): string {
     return this._id ? this._id.id : ''
